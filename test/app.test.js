@@ -29,21 +29,15 @@ it('Test if we have SCISSORS', () => {
 })
 
 it('rock beats scissors', () => {
-	const duel = [
-		{play: 'rock'},
-		{play: 'scissors'}
-	]
+	const duel = [{ play: 'rock' }, { play: 'scissors' }]
 	const result = game.play(duel)
-	console.log("RESULT:", result)
+	console.log('RESULT:', result)
 	expect(result).toBe(0)
 })
 
 it('paper beats rock', () => {
-	const players = [
-		{play: 'rock'},
-		{play: 'paper'}
-	]
+	const players = [{ play: 'rock' }, { play: 'paper' }]
 	const result = game.play(players)
-	console.log("RESULT:", result)
+	console.log('RESULT:', result)
 	expect(result).toBe(1)
 })

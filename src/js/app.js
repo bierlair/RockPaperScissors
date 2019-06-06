@@ -9,8 +9,8 @@ const userChoice = 'rock'
 const choices = ref.choices()
 const computerChoice = choices[Math.floor(Math.random() * choices.length)]
 
-console.log("Choices:", choices)
-console.log("User Choice:", userChoice)
-console.log("Computer Choice:", computerChoice)
+console.log('Choices:', choices)
+console.log('User Choice:', userChoice)
+console.log('Computer Choice:', computerChoice)
 
 console.log(ref.judge(userChoice, computerChoice))
