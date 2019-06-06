@@ -15,16 +15,28 @@ export class Game {
         const play1 = users[0].play
         const play2 = users[1].play
         
-        if(play1 === play2) {
-            return -1
+        const result = {
+            outcome: 'Winner',
+            winner: null
         }
-        return (this.training[play1][play2] === 1) ? 0 : 1
+
+        if(play1 === play2) {
+            result.outcome = 'Tie'
+            return result
+        }
+
+        result.winner = this.training[play1][play2] === 1 ? users[0].type : users[1].type
+        return result
     }
 
     validate(choice) {
         return choice in this.training
     }
     
+    makeRandomChoice() {
+        return Object.keys(this.training)[Math.floor(Math.random() * Object.keys(this.training).length)]
+    }
+
     choices() {
         return Object.keys(this.training)
     }
