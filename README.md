@@ -1,23 +1,23 @@
-Wizard
+Rock, Paper, scissors 
 ===============
 
+    _______
+---'   ____)
+      (_____)
+      (_____)
+      (____)
+---.__(___)
 
+    _______
+---'   ____)____
+          ______)
+          _______)
+         _______)
+---.__________)
 
-                  x
-                 xxx
-                xxxxx
-               xxxxxxx
-               xxxxxxx
-             xxxxxxxxxxx
-         xxxxxxxxxxxxxxxxxxxx
-            //////\\\\\\
-           ///  O   O  \\
-           ///    U    \\\
-           //   \___/   \\         /\       .
-              a       a            \  \ __ /|  
-            aaaaa   aaaaa            o   o
-         aaaaaaaaaaaaaaaaaaa       ::: @ :::
-        aaaaaaa  aaaa   aaaaaa       \/ \/    \
-       aaaaa               aaaa         \    \\\
-      aaaaa  aaaaa aaaaaaa  aaa          \   ##  \
-
+    _______
+---'   ____)____
+          ______)
+       __________)
+      (____)
+---.__(___)
