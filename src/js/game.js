@@ -10,22 +10,11 @@ export class Game {
 		this.training[winner][loser] = 1
 	}
 
-	play(users) {
-		const play1 = users[0].play
-		const play2 = users[1].play
-
-		const result = {
-			outcome: 'Winner',
-			winner: null
+	play(player1, player2) {
+		if (player1.choice === player2.choice) {
+			return null
 		}
-
-		if (play1 === play2) {
-			result.outcome = 'Tie'
-			return result
-		}
-
-		result.winner = this.training[play1][play2] === 1 ? users[0].type : users[1].type
-		return result
+		return this.training[player1.choice][player2.choice] === 1 ? player1.id : player2.id
 	}
 
 	validate(choice) {

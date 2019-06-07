@@ -1,5 +1,6 @@
 import { Game } from './game'
 const readline = require('readline')
+const uuid = require('uuid')
 
 const game = new Game()
 
@@ -37,37 +38,11 @@ async function gameModeListener(key, data) {
 
 		switch (key.toUpperCase()) {
 			case 'C':
-				//process.stdin.removeAllListeners('keypress')
-
-				const player1 = game.makeRandomChoice()
-				const player2 = game.makeRandomChoice()
-
-				console.clear()
-				console.log('Computers only - not a place for humans!')
-				console.log()
-				console.log('Computer 1:', player1.toUpperCase())
-				console.log('Computer 2:', player2.toUpperCase())
-				console.log()
-
-				const result = play('C', player1, player2)
-
-				console.log('---------------------------')
-				console.log('Game Outcome:   ', result.outcome)
-				result.winner && console.log('Game Winner:    ', result.winner)
-				console.log('---------------------------')
-
+				playComputerMode()
 				break
 
 			case 'H':
-				process.stdin.removeAllListeners('keypress')
-				console.clear()
-				console.log("Human it is - Let's get ready to rumble")
-				console.log()
-				console.log('Choose your weapon:')
-				console.log()
-
-				choices.map((choice, index) => console.log(`${index} = ${choice.toUpperCase()}`))
-				process.stdin.on('keypress', userSelectionListener)
+				prepareHumanMode()
 				break
 
 			default:
@@ -76,49 +51,88 @@ async function gameModeListener(key, data) {
 	}
 }
 
-function play(mode, player1, player2) {
-	const duel = [
-		{
-			type: mode === 'C' ? 'Computer 1' : 'Human',
-			play: player1
-		},
-		{
-			type: mode === 'C' ? 'Computer 2' : 'Computer',
-			play: player2
-		}
-	]
-	return game.play(duel)
-	//console.log("RESULT:", result)
+function makePlayer(name, choice) {
+	return { id: uuid(), name, choice }
+}
+
+function printOutcome(player1, player2, result) {
+
+	const outcome = result ? 'Winner' : 'Tie'
+	const winner = result ? (player1.id === result ? player1.name : player2.name) : 'Nobody'
+
+	console.log('---------------------------')
+	console.log('Game Outcome:   ', outcome)
+	console.log('Game Winner:    ', winner)
+	console.log('---------------------------')
+}
+
+function printPlayer(player, winnerId) {
+	const spaceWidth = ' '.repeat(14 - player.name.length)
+	const winnerBanner = winnerId === player.id ? '     <=== WINNER !!!' : ''
+	const choice = player.choice.toUpperCase()
+
+	const message = `${player.name}: ${spaceWidth} ${choice} ${winnerBanner}`
+	console.log(message)
+}
+
+function prepareHumanMode() {
+	process.stdin.removeAllListeners('keypress')
+	console.clear()
+	console.log('Choose your weapon:')
+	console.log()
+
+	choices.map((choice, index) => console.log(`${index} = ${choice.toUpperCase()}`))
+	process.stdin.on('keypress', userSelectionListener)
+}
+
+function playHumanMode(choice) {
+	const player1 = makePlayer('Human', choice)
+	const player2 = makePlayer('Computer', game.makeRandomChoice())
+
+	console.clear()
+	console.log('Human vs. Computer')
+	console.log()
+	play(player1, player2)
+}
+
+function playComputerMode() {
+	const player1 = makePlayer('Computer 1', game.makeRandomChoice())
+	const player2 = makePlayer('Computer 2', game.makeRandomChoice())
+
+	console.clear()
+	console.log('Computers only')
+	console.log()
+	play(player1, player2)
+}
+
+function play(player1, player2) {
+	const result = game.play(player1, player2)
+
+	printPlayer(player1, result)
+	printPlayer(player2, result)
+	console.log()
+	printOutcome(player1, player2, result)
 }
 
 async function userSelectionListener(key, data) {
 	if (choices[key]) {
 		process.stdin.removeAllListeners('keypress')
-
-		const human = choices[key]
-		const computer = choices[Math.floor(Math.random() * choices.length)]
-		console.log()
-		console.log('Human:            ', human.toUpperCase())
-		console.log('Computer:         ', computer.toUpperCase())
-		console.log()
-
-		const result = play('H', human, computer)
-
-		console.log('---------------------------')
-		console.log('Game Outcome:   ', result.outcome)
-		result.winner && console.log('Game Winner:    ', result.winner)
-		console.log('---------------------------')
-
+		playHumanMode(choices[key])
 		process.stdin.on('keypress', gameModeListener)
 	}
 }
 
 async function restartListener(key, data) {
 	switch (key.toUpperCase()) {
-		case 'R':
-			console.log('RESTART')
+		case 'P':
+			console.log('PLAY AGAIN')
 			break
 
+		case 'H':
+			console.log('HOME')
+			start()
+			break
+	
 		case 'Q':
 			console.log('QUIT')
 			break
