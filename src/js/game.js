@@ -1,9 +1,23 @@
 export class Game {
 	constructor() {
 		this.training = {}
+		this.round = 0
+		this.mode = null
 	}
 
-	learn(winner, loser) {
+	get rounds() {
+		return this.round
+	}
+
+	setMode(mode) {
+		this.mode = mode
+	}
+
+	getMode() {
+		return this.mode
+	}
+
+	learn(key, winner, loser) {
 		if (!this.training[winner]) {
 			this.training[winner] = {}
 		}
@@ -11,6 +25,7 @@ export class Game {
 	}
 
 	play(player1, player2) {
+		this.round += 1
 		if (player1.choice === player2.choice) {
 			return null
 		}
@@ -25,7 +40,7 @@ export class Game {
 		return Object.keys(this.training)[Math.floor(Math.random() * Object.keys(this.training).length)]
 	}
 
-	choices() {
+	get choices() {
 		return Object.keys(this.training)
 	}
 }
