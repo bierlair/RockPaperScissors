@@ -1,8 +1,14 @@
+const uuid = require('uuid')
+
 export class Game {
 	constructor() {
 		this.training = {}
 		this.round = 0
 		this.mode = null
+	}
+
+	makePlayer(name, choice) {
+		return { id: uuid(), name, choice }
 	}
 
 	get rounds() {

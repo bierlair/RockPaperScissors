@@ -1,6 +1,5 @@
 import { Game } from './game'
 const readline = require('readline')
-const uuid = require('uuid')
 
 const game = new Game()
 game.learn('R', 'rock', 'scissors')
@@ -10,6 +9,11 @@ game.learn('S', 'scissors', 'paper')
 const gameType = new Map()
 gameType.set('C', 'Computer vs Computer')
 gameType.set('H', 'Human vs Computer')
+
+const proceedType = new Map()
+proceedType.set('R', 'Retry - Play again (same mode)')
+proceedType.set('M', 'Main Menu')
+proceedType.set('Q', 'Quit')
 
 start()
 
@@ -23,10 +27,6 @@ function start() {
 	gameType.forEach((value, key) => {
 		console.log(`${key} = ${value}`)
 	})
-}
-
-function makePlayer(name, choice) {
-	return { id: uuid(), name, choice }
 }
 
 function printOutcome(player1, player2, result) {
@@ -66,34 +66,32 @@ function prepareHumanMode() {
 }
 
 function playComputerMode() {
-	const player1 = makePlayer('Computer 1', game.makeRandomChoice())
-	const player2 = makePlayer('Computer 2', game.makeRandomChoice())
-
-	console.clear()
-	console.log('Computers only')
-	console.log()
-	play(player1, player2)
-	howToProceed()
+	const player1 = game.makePlayer('Computer 1', game.makeRandomChoice())
+	const player2 = game.makePlayer('Computer 2', game.makeRandomChoice())
+	play('**** Computers Duel', player1, player2)
 }
 
 function playHumanMode(choice) {
-	const player1 = makePlayer('Human', choice)
-	const player2 = makePlayer('Computer', game.makeRandomChoice())
-
-	console.clear()
-	console.log('Human vs. Computer')
-	console.log()
-	play(player1, player2)
-	howToProceed()
+	const player1 = game.makePlayer('Human', choice)
+	const player2 = game.makePlayer('Computer', game.makeRandomChoice())
+	play('**** Human vs. Computer Showdown', player1, player2)
 }
 
-function play(player1, player2) {
+function play(title, player1, player2) {
 	const result = game.play(player1, player2)
+
+	console.clear()
+	console.log(title)
+	console.log()
 
 	printPlayer(player1, result)
 	printPlayer(player2, result)
+
 	console.log()
 	printOutcome(player1, player2, result)
+
+	console.log()
+	howToProceed()
 }
 
 function howToProceed() {
@@ -101,9 +99,9 @@ function howToProceed() {
 	console.log()
 	console.log('What next?')
 	console.log()
-	console.log('R = Retry - Play again (same mode)')
-	console.log('M = Main Menu')
-	console.log('Q = Quit')
+	proceedType.forEach((value, key) => {
+		console.log(`${key} = ${value}`)
+	})
 	console.log()
 
 	process.stdin.on('keypress', restartListener)
@@ -115,7 +113,7 @@ function endGame() {
 	}
 
 	console.log()
-	console.log('Thank you for playing!')
+	console.log('Thank you for playing Rock, Paper, Scissors!')
 	console.log(`You have played ${game.rounds} ${pluralize(game.rounds, 'round')}. Have a nice day.`)
 	console.log()
 	process.exit()
@@ -125,15 +123,17 @@ async function gameModeListener(key, data) {
 	if (data.ctrl && data.name === 'c') {
 		endGame()
 	} else {
-		console.log()
-		console.log('Selection:', key)
+		// console.log()
+		// console.log('Selection:', key)
 
-		switch (key.toUpperCase()) {
+		switch (key) {
 			case 'C':
+			case 'c':
 				prepareComputerMode()
 				break
 
 			case 'H':
+			case 'h':
 				prepareHumanMode()
 				break
 
@@ -157,16 +157,19 @@ async function restartListener(key, data) {
 	if (data.ctrl && data.name === 'c') {
 		endGame()
 	} else {
-		switch (key.toUpperCase()) {
+		switch (key) {
 			case 'R':
+			case 'r':
 				game.getMode() === 'C' ? prepareComputerMode() : prepareHumanMode()
 				break
 
-			case 'H':
+			case 'M':
+			case 'm':
 				start()
 				break
 
 			case 'Q':
+			case 'q':
 				endGame()
 				break
 		}
