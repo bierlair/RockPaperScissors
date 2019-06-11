@@ -1,32 +1,26 @@
 import { Game } from './game'
-const readline = require('readline')
+import { Dialog } from './console/dialog'
 
 const game = new Game()
-game.learn('R', 'rock', 'scissors')
-game.learn('P', 'paper', 'rock')
-game.learn('S', 'scissors', 'paper')
 
-const gameType = new Map()
-gameType.set('C', 'Computer vs Computer')
-gameType.set('H', 'Human vs Computer')
-
-const proceedType = new Map()
-proceedType.set('R', 'Retry - Play again (same mode)')
-proceedType.set('M', 'Main Menu')
-proceedType.set('Q', 'Quit')
+const dialog = new Dialog()
 
 start()
 
-function start() {
-	process.stdin.on('keypress', gameModeListener)
-	console.clear()
-	console.log('=====================')
-	console.log('Select your Game Mode')
-	console.log('=====================')
-	console.log()
-	gameType.forEach((value, key) => {
-		console.log(`${key} = ${value}`)
+async function start() {
+	const gameType = new Map()
+
+	gameType.set('C', {
+		title: 'Computer vs Computer',
+		execute: prepareComputerMode
 	})
+
+	gameType.set('H', {
+		title: 'Human vs Computer',
+		execute: prepareHumanMode
+	})
+
+	dialog.showGameModes(gameType)
 }
 
 function printOutcome(player1, player2, result) {
@@ -49,20 +43,19 @@ function printPlayer(player, winnerId) {
 	console.log(message)
 }
 
-function prepareComputerMode() {
+async function prepareComputerMode() {
 	game.setMode('C')
 	playComputerMode()
 }
 
-function prepareHumanMode() {
+async function prepareHumanMode() {
 	game.setMode('H')
-	process.stdin.removeAllListeners('keypress')
-	console.clear()
-	console.log('Choose your weapon:')
-	console.log()
-
-	game.choices.map((choice, index) => console.log(`${index} = ${choice.toUpperCase()}`))
-	process.stdin.on('keypress', userSelectionListener)
+	try {
+		const weapon = await dialog.showWeapons(game.choices)
+		playHumanMode(game.choices[weapon])
+	} catch {
+		endGame()
+	}
 }
 
 function playComputerMode() {
@@ -77,7 +70,7 @@ function playHumanMode(choice) {
 	play('**** Human vs. Computer Showdown', player1, player2)
 }
 
-function play(title, player1, player2) {
+async function play(title, player1, player2) {
 	const result = game.play(player1, player2)
 
 	console.clear()
@@ -91,26 +84,45 @@ function play(title, player1, player2) {
 	printOutcome(player1, player2, result)
 
 	console.log()
-	howToProceed()
-}
 
-function howToProceed() {
-	process.stdin.removeAllListeners('keypress')
-	console.log()
-	console.log('What next?')
-	console.log()
-	proceedType.forEach((value, key) => {
-		console.log(`${key} = ${value}`)
+	const proceedType = new Map()
+	proceedType.set('R', {
+		title: 'Retry - Play again (same mode)',
+		execute: game.getMode() === 'C' ? prepareComputerMode : prepareHumanMode
 	})
-	console.log()
 
-	process.stdin.on('keypress', restartListener)
+	proceedType.set('M', {
+		title: 'Main Menu',
+		execute: start
+	})
+
+	proceedType.set('Q', {
+		title: 'Quit',
+		execute: endGame
+	})
+
+	const next = await dialog.showEndSelection(proceedType)
+
+	switch (next) {
+		case 'r':
+			game.getMode() === 'C' ? prepareComputerMode() : prepareHumanMode()
+			break
+
+		case 'm':
+			start()
+			break
+
+		case 'q':
+			endGame()
+			break
+
+		default:
+			break
+	}
 }
 
 function endGame() {
-	const pluralize = (count, word, plural = word + 's') => {
-		return [1, -1].includes(count) ? word : plural
-	}
+	const pluralize = (count, word, plural = word + 's') => ([1, -1].includes(count) ? word : plural)
 
 	console.log()
 	console.log('Thank you for playing Rock, Paper, Scissors!')
@@ -118,63 +130,3 @@ function endGame() {
 	console.log()
 	process.exit()
 }
-
-async function gameModeListener(key, data) {
-	if (data.ctrl && data.name === 'c') {
-		endGame()
-	} else {
-		// console.log()
-		// console.log('Selection:', key)
-
-		switch (key) {
-			case 'C':
-			case 'c':
-				prepareComputerMode()
-				break
-
-			case 'H':
-			case 'h':
-				prepareHumanMode()
-				break
-
-			default:
-				console.log(`> ${key} < is not defined! Please try again.`)
-		}
-	}
-}
-
-async function userSelectionListener(key, data) {
-	if (data.ctrl && data.name === 'c') {
-		endGame()
-	} else if (game.choices[key]) {
-		process.stdin.removeAllListeners('keypress')
-		playHumanMode(game.choices[key])
-		process.stdin.on('keypress', gameModeListener)
-	}
-}
-
-async function restartListener(key, data) {
-	if (data.ctrl && data.name === 'c') {
-		endGame()
-	} else {
-		switch (key) {
-			case 'R':
-			case 'r':
-				game.getMode() === 'C' ? prepareComputerMode() : prepareHumanMode()
-				break
-
-			case 'M':
-			case 'm':
-				start()
-				break
-
-			case 'Q':
-			case 'q':
-				endGame()
-				break
-		}
-	}
-}
-
-readline.emitKeypressEvents(process.stdin)
-process.stdin.setRawMode(true)

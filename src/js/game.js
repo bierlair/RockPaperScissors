@@ -5,6 +5,11 @@ export class Game {
 		this.training = {}
 		this.round = 0
 		this.mode = null
+		// this.choiceMap = new Map()
+
+		this.learn('R', 'rock', 'scissors')
+		this.learn('P', 'paper', 'rock')
+		this.learn('S', 'scissors', 'paper')
 	}
 
 	makePlayer(name, choice) {
@@ -24,6 +29,7 @@ export class Game {
 	}
 
 	learn(key, winner, loser) {
+		// this.choiceMap.set(key, winner)
 		if (!this.training[winner]) {
 			this.training[winner] = {}
 		}
